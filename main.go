@@ -28,6 +28,7 @@ func main() {
 		web.GET("/All", queueHandler.GetGoods)
 		web.GET("/:Type", queueHandler.GetGoodsType)
 		web.POST("/", queueHandler.AddGood)
+		web.DELETE("/:Code", queueHandler.DeleteGood)
 	}
 
 	line := route.Group("/api/v1/line")

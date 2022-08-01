@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"log"
 	"store/model"
+	"strconv"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -56,7 +57,7 @@ func (r goodRepositoryDB) CreateGoods(data model.StoreInput) (*model.Store, erro
 		r.db.Create(&Store)
 		return &Store, nil
 	}
-	return nil, errors.New("good already exists")
+	return nil, model.ErrGoodAlreadyExists
 }
 
 func (r goodRepositoryDB) generateCode(types string) (NewCode int) {
@@ -69,4 +70,20 @@ func (r goodRepositoryDB) generateCode(types string) (NewCode int) {
 	}
 	NewCode = good.Code + 1
 	return NewCode
+}
+
+func (r goodRepositoryDB) DeleteGood(strcode string) (*model.Store, error) {
+	var good model.Store
+	num := strings.TrimLeft(strcode, "ABCD")
+	code, _ := strconv.Atoi(num)
+	types := strings.Trim(strcode, num)
+	result := r.db.Where("Code = ? AND Type = ?", code, types).Find(&good)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, model.ErrCodenotFound
+	}
+	r.db.Where("Code = ? AND Type = ?", code, types).Delete(&good)
+	return &good, nil
 }

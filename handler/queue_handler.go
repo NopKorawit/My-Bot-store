@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"store/model"
 	"store/service"
@@ -51,4 +52,13 @@ func (h goodHandler) AddGood(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"data": good, "message": "Created"})
+}
+
+func (h goodHandler) DeleteGood(c *gin.Context) {
+	good, err := h.qService.DelistGood(c.Param("Code"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": good, "message": "Deleted", "context": fmt.Sprintf("Good %v Deleted by Admin", good.Code)})
 }
