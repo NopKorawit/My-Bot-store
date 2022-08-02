@@ -10,4 +10,5 @@ type GoodRepository interface {
 	GetGoodsByType(types string) ([]model.Store, error)
 	AddGoods(data model.StoreInput) (*model.Store, error)
 	DeleteGood(strcode string) (*model.Store, error)
+	UpdateGoodsByCode(strcode string, quantity int) (*model.Store, error)
 }

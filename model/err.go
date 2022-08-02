@@ -7,4 +7,5 @@ var (
 	ErrCodenotFound      = errors.New("code not found")
 	ErrGoodAlreadyExists = errors.New("good already exists")
 	ErrDuplicateROW      = errors.New("row is duplicated")
+	ErrNotNumber         = errors.New("This value not a numer")
 )

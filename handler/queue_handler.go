@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"store/model"
 	"store/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -51,7 +52,23 @@ func (h goodHandler) AddGood(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"data": good, "message": "Created"})
+	c.JSON(http.StatusCreated, gin.H{"data": good, "message": "Added"})
+}
+
+func (h goodHandler) UpdateGood(c *gin.Context) {
+	code := c.Query("code")
+	quantity := c.Query("val")
+	value, err := strconv.Atoi(quantity)
+	if err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": model.ErrNotNumber})
+		return
+	}
+	good, err := h.qService.UpdateGood(code, value)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"data": good, "message": "Updated"})
 }
 
 func (h goodHandler) DeleteGood(c *gin.Context) {

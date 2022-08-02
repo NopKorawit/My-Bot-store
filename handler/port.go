@@ -7,6 +7,7 @@ type GoodHandler interface {
 	GetGoods(c *gin.Context)
 	GetGoodsType(c *gin.Context)
 	AddGood(c *gin.Context)
+	UpdateGood(c *gin.Context)
 	DeleteGood(c *gin.Context)
 	//line
 	Callback(c *gin.Context)
