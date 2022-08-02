@@ -78,7 +78,7 @@ func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) 
 
 	if result.RowsAffected == 1 {
 		log.Println(good)
-		good.Quantity = data.Quantity
+		good.Quantity = good.Quantity + data.Quantity
 		result = r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Save(&good)
 		if result.Error != nil {
 			log.Println(result.Error)
