@@ -28,7 +28,7 @@ func (s goodService) GetGoods() ([]model.StoreResponse, error) {
 	qReponses := []model.StoreResponse{}
 	for _, good := range goods {
 		qReponse := model.StoreResponse{
-			Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+			Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 			Type:     good.Type,
 			Name:     good.Name,
 			Quantity: good.Quantity,
@@ -49,7 +49,7 @@ func (s goodService) GetGoodsType(Type string) ([]model.StoreResponse, error) {
 	qReponses := []model.StoreResponse{}
 	for _, good := range goods {
 		qReponse := model.StoreResponse{
-			Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+			Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 			Type:     good.Type,
 			Name:     good.Name,
 			Quantity: good.Quantity,
@@ -74,7 +74,7 @@ func (s goodService) GetGood(code string) (*model.StoreResponse, error) {
 		return nil, model.ErrRepository
 	}
 	qReponse := model.StoreResponse{
-		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 		Type:     good.Type,
 		Name:     good.Name,
 		Quantity: good.Quantity,
@@ -93,7 +93,7 @@ func (s goodService) AddGood(data model.StoreInput) (*model.StoreResponse, error
 		return nil, model.ErrRepository
 	}
 	qReponse := model.StoreResponse{
-		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 		Type:     good.Type,
 		Name:     good.Name,
 		Quantity: good.Quantity,
@@ -121,7 +121,7 @@ func (s goodService) UpdateGood(code string, quantity int) (*model.StoreResponse
 		return nil, model.ErrRepository
 	}
 	qReponse := model.StoreResponse{
-		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 		Type:     good.Type,
 		Name:     good.Name,
 		Quantity: good.Quantity,
@@ -152,7 +152,7 @@ func (s goodService) SellGood(code string, quantity int) (*model.StoreResponse, 
 		return nil, model.ErrRepository
 	}
 	qReponse := model.StoreResponse{
-		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 		Type:     new.Type,
 		Name:     new.Name,
 		Quantity: new.Quantity,
@@ -171,7 +171,7 @@ func (s goodService) DelistGood(code string) (*model.StoreResponse, error) {
 		return nil, model.ErrRepository
 	}
 	qReponse := model.StoreResponse{
-		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Code:     fmt.Sprintf("%v%d", good.Type, good.Code),
 		Type:     good.Type,
 		Name:     good.Name,
 		Quantity: good.Quantity,
