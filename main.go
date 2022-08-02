@@ -29,7 +29,8 @@ func main() {
 		web.GET("/:Type", queueHandler.GetGoodsType)
 		web.GET("/code/:Code", queueHandler.GetGoodsCode)
 		web.POST("/", queueHandler.AddGood)
-		web.PUT("/", queueHandler.UpdateGood)
+		web.PUT("/update", queueHandler.UpdateGood)
+		web.PUT("/sell", queueHandler.SellGood)
 		web.DELETE("/:Code", queueHandler.DeleteGood)
 	}
 

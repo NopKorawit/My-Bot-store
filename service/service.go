@@ -72,15 +72,14 @@ func (s goodService) GetGood(code string) (*model.StoreResponse, error) {
 		}
 		log.Println(err)
 		return nil, model.ErrRepository
-	} else {
-		qReponse := model.StoreResponse{
-			Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
-			Type:     good.Type,
-			Name:     good.Name,
-			Quantity: good.Quantity,
-		}
-		return &qReponse, nil
 	}
+	qReponse := model.StoreResponse{
+		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Type:     good.Type,
+		Name:     good.Name,
+		Quantity: good.Quantity,
+	}
+	return &qReponse, nil
 }
 
 func (s goodService) AddGood(data model.StoreInput) (*model.StoreResponse, error) {
@@ -92,15 +91,14 @@ func (s goodService) AddGood(data model.StoreInput) (*model.StoreResponse, error
 		}
 		log.Println(err)
 		return nil, model.ErrRepository
-	} else {
-		qReponse := model.StoreResponse{
-			Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
-			Type:     good.Type,
-			Name:     good.Name,
-			Quantity: good.Quantity,
-		}
-		return &qReponse, nil
 	}
+	qReponse := model.StoreResponse{
+		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Type:     good.Type,
+		Name:     good.Name,
+		Quantity: good.Quantity,
+	}
+	return &qReponse, nil
 }
 
 func (s goodService) UpdateGood(code string, quantity int) (*model.StoreResponse, error) {
@@ -121,15 +119,45 @@ func (s goodService) UpdateGood(code string, quantity int) (*model.StoreResponse
 	if err != nil {
 		log.Println(err)
 		return nil, model.ErrRepository
-	} else {
-		qReponse := model.StoreResponse{
-			Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
-			Type:     good.Type,
-			Name:     good.Name,
-			Quantity: good.Quantity,
-		}
-		return &qReponse, nil
 	}
+	qReponse := model.StoreResponse{
+		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Type:     good.Type,
+		Name:     good.Name,
+		Quantity: good.Quantity,
+	}
+	return &qReponse, nil
+}
+
+func (s goodService) SellGood(code string, quantity int) (*model.StoreResponse, error) {
+	good, err := s.goodRepo.GetGoodsByCode(code)
+	if err != nil {
+		if err == model.ErrDuplicateROW {
+			log.Println(err)
+			return nil, err
+		} else if err == model.ErrCodenotFound {
+			log.Println(err)
+			return nil, err
+		}
+		log.Println(err)
+		return nil, model.ErrRepository
+	}
+	good.Quantity = good.Quantity - quantity
+	if good.Quantity < 0 {
+		return nil, model.ErrGoodNotEnough
+	}
+	new, err := s.goodRepo.UpdateGoodsByModel(good)
+	if err != nil {
+		log.Println(err)
+		return nil, model.ErrRepository
+	}
+	qReponse := model.StoreResponse{
+		Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+		Type:     new.Type,
+		Name:     new.Name,
+		Quantity: new.Quantity,
+	}
+	return &qReponse, nil
 }
 
 func (s goodService) DelistGood(code string) (*model.StoreResponse, error) {

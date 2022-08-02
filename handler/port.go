@@ -10,6 +10,7 @@ type GoodHandler interface {
 	AddGood(c *gin.Context)
 	UpdateGood(c *gin.Context)
 	DeleteGood(c *gin.Context)
+	SellGood(c *gin.Context)
 	//line
 	Callback(c *gin.Context)
 	Hello(c *gin.Context)

@@ -11,5 +11,6 @@ type GoodService interface {
 	GetGood(code string) (*model.StoreResponse, error)
 	AddGood(data model.StoreInput) (*model.StoreResponse, error)
 	UpdateGood(code string, quantity int) (*model.StoreResponse, error)
+	SellGood(code string, quantity int) (*model.StoreResponse, error)
 	DelistGood(code string) (*model.StoreResponse, error)
 }
