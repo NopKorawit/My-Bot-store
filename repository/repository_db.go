@@ -89,6 +89,7 @@ func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) 
 	return nil, model.ErrDuplicateROW
 }
 
+//not use
 func (r goodRepositoryDB) UpdateGoodsByCode(strcode string, quantity int) (*model.Store, error) {
 	good, err := r.GetGoodsByCode(strcode)
 	if err != nil {
@@ -96,6 +97,16 @@ func (r goodRepositoryDB) UpdateGoodsByCode(strcode string, quantity int) (*mode
 	}
 	good.Quantity = quantity
 	result := r.db.Where("Code = ? AND Type = ?", good.Code, good.Type).Save(&good)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return nil, result.Error
+	}
+	return good, nil
+}
+
+func (r goodRepositoryDB) UpdateGoodsByModel(model *model.Store) (*model.Store, error) {
+	good := model
+	result := r.db.Where("Code = ? AND Type = ?", model.Code, model.Type).Save(&good)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return nil, result.Error

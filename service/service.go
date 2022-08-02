@@ -66,6 +66,9 @@ func (s goodService) GetGood(code string) (*model.StoreResponse, error) {
 		if err == model.ErrDuplicateROW {
 			log.Println(err)
 			return nil, err
+		} else if err == model.ErrCodenotFound {
+			log.Println(err)
+			return nil, err
 		}
 		log.Println(err)
 		return nil, model.ErrRepository
@@ -101,12 +104,21 @@ func (s goodService) AddGood(data model.StoreInput) (*model.StoreResponse, error
 }
 
 func (s goodService) UpdateGood(code string, quantity int) (*model.StoreResponse, error) {
-	good, err := s.goodRepo.UpdateGoodsByCode(code, quantity)
+	good, err := s.goodRepo.GetGoodsByCode(code)
 	if err != nil {
 		if err == model.ErrDuplicateROW {
 			log.Println(err)
 			return nil, err
+		} else if err == model.ErrCodenotFound {
+			log.Println(err)
+			return nil, err
 		}
+		log.Println(err)
+		return nil, model.ErrRepository
+	}
+	good.Quantity = quantity
+	good, err = s.goodRepo.UpdateGoodsByModel(good)
+	if err != nil {
 		log.Println(err)
 		return nil, model.ErrRepository
 	} else {
