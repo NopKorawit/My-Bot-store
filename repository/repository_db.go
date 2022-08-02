@@ -20,7 +20,6 @@ func NewGoodRepositoryDB(db *gorm.DB) GoodRepository {
 }
 
 //buld all receiver function for interface
-
 func (r goodRepositoryDB) GetAllGoods() ([]model.Store, error) {
 	goods := []model.Store{}
 	err := r.db.Order("Code").Find(&goods).Error
@@ -38,6 +37,25 @@ func (r goodRepositoryDB) GetGoodsByType(types string) ([]model.Store, error) {
 		return nil, err
 	}
 	return goods, nil
+}
+
+func (r goodRepositoryDB) GetGoodsByCode(strcode string) (*model.Store, error) {
+	good := model.Store{}
+	num := strings.TrimLeft(strcode, "ABCD")
+	code, _ := strconv.Atoi(num)
+	Type := strings.Trim(strcode, num)
+	result := r.db.Where("Code = ? AND Type = ?", code, Type).Find(&good)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	print(result.RowsAffected)
+	if result.RowsAffected == 0 {
+		return nil, model.ErrCodenotFound
+	}
+	if result.RowsAffected == 1 {
+		return &good, nil
+	}
+	return nil, model.ErrDuplicateROW
 }
 
 func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) {
@@ -59,7 +77,6 @@ func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) 
 	}
 
 	if result.RowsAffected == 1 {
-		log.Println("เข้า1")
 		log.Println(good)
 		good.Quantity = data.Quantity
 		result = r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Save(&good)
@@ -73,46 +90,17 @@ func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) 
 }
 
 func (r goodRepositoryDB) UpdateGoodsByCode(strcode string, quantity int) (*model.Store, error) {
-	good := model.Store{}
-	num := strings.TrimLeft(strcode, "ABCD")
-	code, _ := strconv.Atoi(num)
-	Type := strings.Trim(strcode, num)
-	result := r.db.Where("Code = ? AND Type = ?", code, Type).Find(&good)
+	good, err := r.GetGoodsByCode(strcode)
+	if err != nil {
+		return nil, err
+	}
+	good.Quantity = quantity
+	result := r.db.Where("Code = ? AND Type = ?", good.Code, good.Type).Save(&good)
 	if result.Error != nil {
+		log.Println(result.Error)
 		return nil, result.Error
 	}
-	if result.RowsAffected == 0 {
-		return nil, model.ErrCodenotFound
-	}
-	if result.RowsAffected == 1 {
-		good.Quantity = quantity
-		result = r.db.Where("Code = ? AND Type = ?", code, Type).Save(&good)
-		if result.Error != nil {
-			log.Println(result.Error)
-			return nil, result.Error
-		}
-		return &good, nil
-	}
-	return nil, model.ErrDuplicateROW
-}
-
-func (r goodRepositoryDB) GetGoodsByCode(strcode string) (*model.Store, error) {
-	good := model.Store{}
-	num := strings.TrimLeft(strcode, "ABCD")
-	code, _ := strconv.Atoi(num)
-	Type := strings.Trim(strcode, num)
-	result := r.db.Where("Code = ? AND Type = ?", code, Type).Find(&good)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	print(result.RowsAffected)
-	if result.RowsAffected == 0 {
-		return nil, model.ErrCodenotFound
-	}
-	if result.RowsAffected == 1 {
-		return &good, nil
-	}
-	return nil, model.ErrDuplicateROW
+	return good, nil
 }
 
 func (r goodRepositoryDB) generateCode(types string) (NewCode int) {
