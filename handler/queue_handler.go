@@ -30,7 +30,7 @@ func (h goodHandler) GetGoods(c *gin.Context) {
 func (h goodHandler) GetGoodsType(c *gin.Context) {
 	genre := c.Param("Type")
 	if genre == "A" || genre == "B" || genre == "C" || genre == "D" {
-		goods, err := h.qService.GetGoodsType(c.Param("Type"))
+		goods, err := h.qService.GetGoodsType(genre)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -39,6 +39,16 @@ func (h goodHandler) GetGoodsType(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusNotAcceptable, gin.H{"error": "invalid types error"})
+}
+
+func (h goodHandler) GetGoodsCode(c *gin.Context) {
+	code := c.Param("Code")
+	goods, err := h.qService.GetGood(code)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": goods})
 }
 
 func (h goodHandler) AddGood(c *gin.Context) {

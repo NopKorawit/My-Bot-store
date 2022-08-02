@@ -96,6 +96,25 @@ func (r goodRepositoryDB) UpdateGoodsByCode(strcode string, quantity int) (*mode
 	return nil, model.ErrDuplicateROW
 }
 
+func (r goodRepositoryDB) GetGoodsByCode(strcode string) (*model.Store, error) {
+	good := model.Store{}
+	num := strings.TrimLeft(strcode, "ABCD")
+	code, _ := strconv.Atoi(num)
+	Type := strings.Trim(strcode, num)
+	result := r.db.Where("Code = ? AND Type = ?", code, Type).Find(&good)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	print(result.RowsAffected)
+	if result.RowsAffected == 0 {
+		return nil, model.ErrCodenotFound
+	}
+	if result.RowsAffected == 1 {
+		return &good, nil
+	}
+	return nil, model.ErrDuplicateROW
+}
+
 func (r goodRepositoryDB) generateCode(types string) (NewCode int) {
 	good := model.Store{}
 	result := r.db.Where("Type=?", types).Limit(1).Order("Code desc").Find(&good)

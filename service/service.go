@@ -100,6 +100,26 @@ func (s goodService) UpdateGood(code string, quantity int) (*model.StoreResponse
 	}
 }
 
+func (s goodService) GetGood(code string) (*model.StoreResponse, error) {
+	good, err := s.goodRepo.GetGoodsByCode(code)
+	if err != nil {
+		if err == model.ErrDuplicateROW {
+			log.Println(err)
+			return nil, err
+		}
+		log.Println(err)
+		return nil, model.ErrRepository
+	} else {
+		qReponse := model.StoreResponse{
+			Code:     fmt.Sprintf("%v%03d", good.Type, good.Code),
+			Type:     good.Type,
+			Name:     good.Name,
+			Quantity: good.Quantity,
+		}
+		return &qReponse, nil
+	}
+}
+
 func (s goodService) DelistGood(code string) (*model.StoreResponse, error) {
 	good, err := s.goodRepo.DeleteGood(code)
 	if err != nil {
