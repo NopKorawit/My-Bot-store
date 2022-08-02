@@ -61,9 +61,9 @@ func (s goodService) GetGoodsType(Type string) ([]model.StoreResponse, error) {
 }
 
 func (s goodService) AddGood(data model.StoreInput) (*model.StoreResponse, error) {
-	good, err := s.goodRepo.CreateGoods(data)
+	good, err := s.goodRepo.AddGoods(data)
 	if err != nil {
-		if err == model.ErrGoodAlreadyExists {
+		if err == model.ErrDuplicateROW {
 			log.Println(err)
 			return nil, err
 		}

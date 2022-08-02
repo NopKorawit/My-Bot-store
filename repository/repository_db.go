@@ -40,9 +40,9 @@ func (r goodRepositoryDB) GetGoodsByType(types string) ([]model.Store, error) {
 	return goods, nil
 }
 
-func (r goodRepositoryDB) CreateGoods(data model.StoreInput) (*model.Store, error) {
+func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) {
 	good := model.Store{}
-	result := r.db.Where("Name = ?", data.Name).Find(&good)
+	result := r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Find(&good)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return nil, result.Error
@@ -57,7 +57,19 @@ func (r goodRepositoryDB) CreateGoods(data model.StoreInput) (*model.Store, erro
 		r.db.Create(&Store)
 		return &Store, nil
 	}
-	return nil, model.ErrGoodAlreadyExists
+
+	if result.RowsAffected == 1 {
+		log.Println("เข้า1")
+		log.Println(good)
+		good.Quantity = data.Quantity
+		result = r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Save(&good)
+		if result.Error != nil {
+			log.Println(result.Error)
+			return nil, result.Error
+		}
+		return &good, nil
+	}
+	return nil, model.ErrDuplicateROW
 }
 
 func (r goodRepositoryDB) generateCode(types string) (NewCode int) {
