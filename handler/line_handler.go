@@ -85,15 +85,29 @@ func (h goodHandler) Callback(c *gin.Context) {
 					}
 
 					head := fmt.Sprintf("รายการ %v ตามนี้ค้าบ\n", message.Text)
+					var quantity string
 					for _, good := range goods {
-						text := fmt.Sprintf("%v | % 10v | %v\n", good.Code, good.Name, good.Quantity)
+
+						if good.Quantity == 0 {
+							quantity = "❌"
+						} else if good.Quantity < 3 {
+							quantity = "⚠️"
+						} else {
+							quantity = "✅"
+						}
+						text := fmt.Sprintf("%v | %v | %v\n", quantity, good.Code, good.Name)
 						head = head + text
 					}
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(head)).Do(); err != nil {
 						log.Print(err)
 					}
 				}
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ขออภัยครับ แต่เรายังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือส่งต่อให้เจ้าหน้าที่ตอบคำถามดีครับ")).Do(); err != nil {
+				// Emoji
+				sorry := linebot.NewEmoji(0, "5ac1bfd5040ab15980c9b435", "024")
+				// have := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "007")
+				// out := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "068")
+				// few := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "025")
+				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("$ ขออภัยครับ แต่ผมยังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือรอให้นพมาตอบคำถามดีครับ").AddEmoji(sorry)).Do(); err != nil {
 					log.Print(err)
 				}
 				// }
