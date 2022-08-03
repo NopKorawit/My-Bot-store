@@ -50,6 +50,49 @@ func (h goodHandler) Callback(c *gin.Context) {
 					}
 					return
 				}
+				if message.Text == "RELX" || message.Text == "INFY" || message.Text == "JUES" || message.Text == "7-11" || message.Text == "BOLD" || message.Text == "See all" {
+					var types string
+					switch message.Text {
+					case "See all":
+						// types = "All"
+					case "RELX":
+						types = "A"
+					case "INFY":
+						types = "B"
+					case "JUES":
+						types = "C"
+					case "7-11":
+						types = "D"
+					case "BOLD":
+						types = "D"
+					default:
+						log.Println("This Type not in Conditions")
+					}
+
+					goods, err := h.qService.GetGoodsType(types)
+					if err != nil {
+						if err.Error() == "queue already exists" {
+							if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ท่านจองคิวไปแล้วกรุณายกเลิกคิวก่อนหน้า")).Do(); err != nil {
+								log.Print(err)
+							}
+							return
+						} else {
+							if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("เกิดข้อผิดพลาดไม่สามารถบันทึกคิวได้")).Do(); err != nil {
+								log.Print(err)
+							}
+							return
+						}
+					}
+
+					head := fmt.Sprintf("รายการ %v ตามนี้ค้าบ\n", message.Text)
+					for _, good := range goods {
+						text := fmt.Sprintf("%v | % 10v | %v\n", good.Code, good.Name, good.Quantity)
+						head = head + text
+					}
+					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(head)).Do(); err != nil {
+						log.Print(err)
+					}
+				}
 				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ขออภัยครับ แต่เรายังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือส่งต่อให้เจ้าหน้าที่ตอบคำถามดีครับ")).Do(); err != nil {
 					log.Print(err)
 				}
