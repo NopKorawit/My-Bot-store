@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"store/model"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -101,16 +104,52 @@ func (h goodHandler) Callback(c *gin.Context) {
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(head)).Do(); err != nil {
 						log.Print(err)
 					}
+					return
 				}
-				// Emoji
-				sorry := linebot.NewEmoji(0, "5ac1bfd5040ab15980c9b435", "024")
-				// have := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "007")
-				// out := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "068")
-				// few := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "025")
-				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("$ ขออภัยครับ แต่ผมยังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือรอให้นพมาตอบคำถามดีครับ").AddEmoji(sorry)).Do(); err != nil {
-					log.Print(err)
+
+				split := strings.Split(message.Text, " ")
+				if split[0] == "ซื้อ" || split[0] == "เอา" || split[0] == "buy" {
+					fmt.Println(split[1])
+					amount, _ := strconv.Atoi(split[2])
+					good, err := h.qService.SellGood(split[1], amount)
+					fmt.Println(err)
+					if err != nil {
+						if err == model.ErrGoodNotEnough {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
+								log.Print(err)
+								return
+							}
+							return
+						} else if err == model.ErrCodenotFound {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
+								log.Print(err)
+								return
+							}
+							return
+						} else {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
+								log.Print(err)
+								return
+							}
+							return
+						}
+					}
+					fmt.Println(good)
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(fmt.Sprintf("ซื้อ %v %v เรียบร้อยแล้ว", good.Name, good.Type))).Do(); err != nil {
+						log.Print(err)
+						return
+					}
+					return
+				} else {
+					// Emoji
+					sorry := linebot.NewEmoji(0, "5ac1bfd5040ab15980c9b435", "024")
+					// have := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "007")
+					// out := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "068")
+					// few := linebot.NewEmoji(0, "5ac21a18040ab15980c9b43e", "025")
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("$ ขออภัยครับ แต่ผมยังไม่เข้าใจ ท่านอยากจะทวนอีกรอบหรือรอให้นพมาตอบคำถามดีครับ").AddEmoji(sorry)).Do(); err != nil {
+						log.Print(err)
+					}
 				}
-				// }
 			}
 		}
 	}
