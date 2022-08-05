@@ -106,40 +106,46 @@ func (h goodHandler) Callback(c *gin.Context) {
 					}
 					return
 				}
-
-				split := strings.Split(message.Text, " ")
-				if split[0] == "ซื้อ" || split[0] == "เอา" || split[0] == "buy" {
-					fmt.Println(split[1])
-					amount, _ := strconv.Atoi(split[2])
-					good, err := h.qService.SellGood(split[1], amount)
-					fmt.Println(err)
-					if err != nil {
-						if err == model.ErrGoodNotEnough {
-							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
-								log.Print(err)
+				rows := strings.Split(message.Text, "\n")
+				if rows[0] == "ซื้อ" || rows[0] == "เอา" || rows[0] == "buy" || rows[0] == "order" {
+					rows := rows[1:]
+					text := "ซื้อ\n"
+					for _, row := range rows {
+						split := strings.Split(row, " ")
+						fmt.Println(split[1])
+						amount, _ := strconv.Atoi(split[1])
+						good, err := h.qService.SellGood(split[0], amount)
+						fmt.Println(err)
+						if err != nil {
+							if err == model.ErrGoodNotEnough {
+								if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
+									log.Print(err)
+									return
+								}
+								return
+							} else if err == model.ErrCodenotFound {
+								if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
+									log.Print(err)
+									return
+								}
+								return
+							} else {
+								if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
+									log.Print(err)
+									return
+								}
 								return
 							}
-							return
-						} else if err == model.ErrCodenotFound {
-							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
-								log.Print(err)
-								return
-							}
-							return
-						} else {
-							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
-								log.Print(err)
-								return
-							}
-							return
 						}
+						list := fmt.Sprintf("%v หัว| %v %v\n", good.Quantity, good.Type, good.Name)
+						text = text + list
+						fmt.Println(good)
 					}
-					fmt.Println(good)
-					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(fmt.Sprintf("ซื้อ %v %v เรียบร้อยแล้ว", good.Name, good.Type))).Do(); err != nil {
+					text = text + "เรียบร้อยแล้ว"
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
 						log.Print(err)
 						return
 					}
-					return
 				} else {
 					// Emoji
 					sorry := linebot.NewEmoji(0, "5ac1bfd5040ab15980c9b435", "024")

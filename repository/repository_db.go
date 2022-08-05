@@ -48,7 +48,6 @@ func (r goodRepositoryDB) GetGoodsByCode(strcode string) (*model.Store, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	print(result.RowsAffected)
 	if result.RowsAffected == 0 {
 		return nil, model.ErrCodenotFound
 	}
