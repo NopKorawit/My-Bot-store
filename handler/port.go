@@ -2,15 +2,15 @@ package handler
 
 import "github.com/gin-gonic/gin"
 
-type GoodHandler interface {
+type ProductHandler interface {
 	//web
-	GetGoods(c *gin.Context)
-	GetGoodsType(c *gin.Context)
-	GetGoodsCode(c *gin.Context)
-	AddGood(c *gin.Context)
-	UpdateGood(c *gin.Context)
-	DeleteGood(c *gin.Context)
-	SellGood(c *gin.Context)
+	GetProducts(c *gin.Context)
+	GetProductsType(c *gin.Context)
+	GetProductsCode(c *gin.Context)
+	AddProduct(c *gin.Context)
+	UpdateProduct(c *gin.Context)
+	DeleteProduct(c *gin.Context)
+	SellProduct(c *gin.Context)
 	//line
 	Callback(c *gin.Context)
 	Hello(c *gin.Context)

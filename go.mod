@@ -1,4 +1,4 @@
-module store
+module Product
 
 go 1.18
 

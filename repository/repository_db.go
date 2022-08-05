@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"Product/model"
 	"log"
-	"store/model"
 	"strconv"
 	"strings"
 
@@ -10,41 +10,41 @@ import (
 )
 
 //Adapter private
-type goodRepositoryDB struct {
+type ProductRepositoryDB struct {
 	db *gorm.DB
 }
 
 //Constructor Public เพื่อ new instance
-func NewGoodRepositoryDB(db *gorm.DB) GoodRepository {
-	return goodRepositoryDB{db: db}
+func NewProductRepositoryDB(db *gorm.DB) ProductRepository {
+	return ProductRepositoryDB{db: db}
 }
 
 //buld all receiver function for interface
-func (r goodRepositoryDB) GetAllGoods() ([]model.Store, error) {
-	goods := []model.Store{}
-	err := r.db.Order("Code").Find(&goods).Error
+func (r ProductRepositoryDB) GetAllProducts() ([]model.Product, error) {
+	Products := []model.Product{}
+	err := r.db.Order("Code").Find(&Products).Error
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	return goods, nil
+	return Products, nil
 }
 
-func (r goodRepositoryDB) GetGoodsByType(types string) ([]model.Store, error) {
-	goods := []model.Store{}
-	err := r.db.Where("Type = ?", types).Order("Code").Find(&goods).Error
+func (r ProductRepositoryDB) GetProductsByType(types string) ([]model.Product, error) {
+	Products := []model.Product{}
+	err := r.db.Where("Type = ?", types).Order("Code").Find(&Products).Error
 	if err != nil {
 		return nil, err
 	}
-	return goods, nil
+	return Products, nil
 }
 
-func (r goodRepositoryDB) GetGoodsByCode(strcode string) (*model.Store, error) {
-	good := model.Store{}
+func (r ProductRepositoryDB) GetProductsByCode(strcode string) (*model.Product, error) {
+	Product := model.Product{}
 	num := strings.TrimLeft(strcode, "ABCD")
 	code, _ := strconv.Atoi(num)
 	Type := strings.Trim(strcode, num)
-	result := r.db.Where("Code = ? AND Type = ?", code, Type).Find(&good)
+	result := r.db.Where("Code = ? AND Type = ?", code, Type).Find(&Product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -52,21 +52,21 @@ func (r goodRepositoryDB) GetGoodsByCode(strcode string) (*model.Store, error) {
 		return nil, model.ErrCodenotFound
 	}
 	if result.RowsAffected == 1 {
-		return &good, nil
+		return &Product, nil
 	}
 	return nil, model.ErrDuplicateROW
 }
 
-func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) {
-	good := model.Store{}
-	result := r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Find(&good)
+func (r ProductRepositoryDB) AddProducts(data model.ProductInput) (*model.Product, error) {
+	Product := model.Product{}
+	result := r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Find(&Product)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return nil, result.Error
 	}
 	if result.RowsAffected == 0 {
 		newCode := r.generateCode(data.Type)
-		Store := model.Store{
+		Store := model.Product{
 			Code:     newCode,
 			Type:     data.Type,
 			Name:     data.Name,
@@ -76,67 +76,81 @@ func (r goodRepositoryDB) AddGoods(data model.StoreInput) (*model.Store, error) 
 	}
 
 	if result.RowsAffected == 1 {
-		log.Println(good)
-		good.Quantity = good.Quantity + data.Quantity
-		result = r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Save(&good)
+		log.Println(Product)
+		Product.Quantity = Product.Quantity + data.Quantity
+		result = r.db.Where("Name = ? AND Type = ?", data.Name, data.Type).Save(&Product)
 		if result.Error != nil {
 			log.Println(result.Error)
 			return nil, result.Error
 		}
-		return &good, nil
+		return &Product, nil
 	}
 	return nil, model.ErrDuplicateROW
 }
 
 //not use
-func (r goodRepositoryDB) UpdateGoodsByCode(strcode string, quantity int) (*model.Store, error) {
-	good, err := r.GetGoodsByCode(strcode)
+func (r ProductRepositoryDB) UpdateProductsByCode(strcode string, quantity int) (*model.Product, error) {
+	Product, err := r.GetProductsByCode(strcode)
 	if err != nil {
 		return nil, err
 	}
-	good.Quantity = quantity
-	result := r.db.Where("Code = ? AND Type = ?", good.Code, good.Type).Save(&good)
+	Product.Quantity = quantity
+	result := r.db.Where("Code = ? AND Type = ?", Product.Code, Product.Type).Save(&Product)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return nil, result.Error
 	}
-	return good, nil
+	return Product, nil
 }
 
-func (r goodRepositoryDB) UpdateGoodsByModel(model *model.Store) (*model.Store, error) {
-	good := model
-	result := r.db.Where("Code = ? AND Type = ?", model.Code, model.Type).Save(&good)
+func (r ProductRepositoryDB) UpdateProductsByCode2(strcode string, quantity int) (*model.Product, error) {
+	Product := model.Product{}
+	num := strings.TrimLeft(strcode, "ABCD")
+	code, _ := strconv.Atoi(num)
+	types := strings.Trim(strcode, num)
+	Product.Quantity = quantity
+	result := r.db.Where("Code = ? AND Type = ?", code, types).Save(&Product)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return nil, result.Error
 	}
-	return good, nil
+	return &Product, nil
 }
 
-func (r goodRepositoryDB) generateCode(types string) (NewCode int) {
-	good := model.Store{}
-	result := r.db.Where("Type=?", types).Limit(1).Order("Code desc").Find(&good)
+func (r ProductRepositoryDB) UpdateProductsByModel(model *model.Product) (*model.Product, error) {
+	Product := model
+	result := r.db.Where("Code = ? AND Type = ?", model.Code, model.Type).Save(&Product)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return nil, result.Error
+	}
+	return Product, nil
+}
+
+func (r ProductRepositoryDB) generateCode(types string) (NewCode int) {
+	Product := model.Product{}
+	result := r.db.Where("Type=?", types).Limit(1).Order("Code desc").Find(&Product)
 	log.Println(result.RowsAffected)
 	if result.RowsAffected == 0 {
 		NewCode = 1
 		return NewCode
 	}
-	NewCode = good.Code + 1
+	NewCode = Product.Code + 1
 	return NewCode
 }
 
-func (r goodRepositoryDB) DeleteGood(strcode string) (*model.Store, error) {
-	var good model.Store
+func (r ProductRepositoryDB) DeleteProduct(strcode string) (*model.Product, error) {
+	var Product model.Product
 	num := strings.TrimLeft(strcode, "ABCD")
 	code, _ := strconv.Atoi(num)
 	types := strings.Trim(strcode, num)
-	result := r.db.Where("Code = ? AND Type = ?", code, types).Find(&good)
+	result := r.db.Where("Code = ? AND Type = ?", code, types).Find(&Product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	if result.RowsAffected == 0 {
 		return nil, model.ErrCodenotFound
 	}
-	r.db.Where("Code = ? AND Type = ?", code, types).Delete(&good)
-	return &good, nil
+	r.db.Where("Code = ? AND Type = ?", code, types).Delete(&Product)
+	return &Product, nil
 }

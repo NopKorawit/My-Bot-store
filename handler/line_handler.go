@@ -1,10 +1,10 @@
 package handler
 
 import (
+	"Product/model"
 	"fmt"
 	"log"
 	"net/http"
-	"store/model"
 	"strconv"
 	"strings"
 
@@ -12,11 +12,11 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func (h goodHandler) Hello(c *gin.Context) {
+func (h ProductHandler) Hello(c *gin.Context) {
 	c.String(http.StatusOK, "Hello World!")
 }
 
-func (h goodHandler) Callback(c *gin.Context) {
+func (h ProductHandler) Callback(c *gin.Context) {
 	bot := GetBot()
 	events, err := bot.ParseRequest(c.Request)
 	if err != nil {
@@ -72,7 +72,7 @@ func (h goodHandler) Callback(c *gin.Context) {
 						log.Println("This Type not in Conditions")
 					}
 
-					goods, err := h.qService.GetGoodsType(types)
+					Products, err := h.qService.GetProductsType(types)
 					if err != nil {
 						if err.Error() == "queue already exists" {
 							if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ท่านจองคิวไปแล้วกรุณายกเลิกคิวก่อนหน้า")).Do(); err != nil {
@@ -89,16 +89,16 @@ func (h goodHandler) Callback(c *gin.Context) {
 
 					head := fmt.Sprintf("รายการ %v ตามนี้ค้าบ\n", message.Text)
 					var quantity string
-					for _, good := range goods {
+					for _, Product := range Products {
 
-						if good.Quantity == 0 {
+						if Product.Quantity == 0 {
 							quantity = "❌"
-						} else if good.Quantity < 3 {
+						} else if Product.Quantity < 3 {
 							quantity = "⚠️"
 						} else {
 							quantity = "✅"
 						}
-						text := fmt.Sprintf("%v | %v | %v\n", quantity, good.Code, good.Name)
+						text := fmt.Sprintf("%v | %v | %v\n", quantity, Product.Code, Product.Name)
 						head = head + text
 					}
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(head)).Do(); err != nil {
@@ -114,10 +114,10 @@ func (h goodHandler) Callback(c *gin.Context) {
 						split := strings.Split(row, " ")
 						fmt.Println(split[1])
 						amount, _ := strconv.Atoi(split[1])
-						good, err := h.qService.SellGood(split[0], amount)
+						Product, err := h.qService.SellProduct(split[0], amount)
 						fmt.Println(err)
 						if err != nil {
-							if err == model.ErrGoodNotEnough {
+							if err == model.ErrProductNotEnough {
 								if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
 									log.Print(err)
 									return
@@ -137,9 +137,9 @@ func (h goodHandler) Callback(c *gin.Context) {
 								return
 							}
 						}
-						list := fmt.Sprintf("%v หัว| %v %v\n", good.Quantity, good.Type, good.Name)
+						list := fmt.Sprintf("%v หัว| %v %v\n", Product.Quantity, Product.Type, Product.Name)
 						text = text + list
-						fmt.Println(good)
+						fmt.Println(Product)
 					}
 					text = text + "เรียบร้อยแล้ว"
 					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {

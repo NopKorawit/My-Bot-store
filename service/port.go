@@ -1,16 +1,16 @@
 package service
 
 import (
-	"store/model"
+	"Product/model"
 )
 
 //port
-type GoodService interface {
-	GetGoods() ([]model.StoreResponse, error)
-	GetGoodsType(Type string) ([]model.StoreResponse, error)
-	GetGood(code string) (*model.StoreResponse, error)
-	AddGood(data model.StoreInput) (*model.StoreResponse, error)
-	UpdateGood(code string, quantity int) (*model.StoreResponse, error)
-	SellGood(code string, quantity int) (*model.StoreResponse, error)
-	DelistGood(code string) (*model.StoreResponse, error)
+type ProductService interface {
+	GetProducts() ([]model.ProductResponse, error)
+	GetProductsType(Type string) ([]model.ProductResponse, error)
+	GetProduct(code string) (*model.ProductResponse, error)
+	AddProduct(data model.ProductInput) (*model.ProductResponse, error)
+	UpdateProduct(code string, quantity int) (*model.ProductResponse, error)
+	SellProduct(code string, quantity int) (*model.ProductResponse, error)
+	DelistProduct(code string) (*model.ProductResponse, error)
 }

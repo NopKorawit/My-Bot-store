@@ -1,16 +1,17 @@
 package repository
 
 import (
-	"store/model"
+	"Product/model"
 )
 
 //Port
-type GoodRepository interface {
-	GetAllGoods() ([]model.Store, error)
-	GetGoodsByType(types string) ([]model.Store, error)
-	GetGoodsByCode(strcode string) (*model.Store, error)
-	AddGoods(data model.StoreInput) (*model.Store, error)
-	DeleteGood(strcode string) (*model.Store, error)
-	UpdateGoodsByCode(strcode string, quantity int) (*model.Store, error)
-	UpdateGoodsByModel(model *model.Store) (*model.Store, error)
+type ProductRepository interface {
+	GetAllProducts() ([]model.Product, error)
+	GetProductsByType(types string) ([]model.Product, error)
+	GetProductsByCode(strcode string) (*model.Product, error)
+	AddProducts(data model.ProductInput) (*model.Product, error)
+	DeleteProduct(strcode string) (*model.Product, error)
+	UpdateProductsByCode(strcode string, quantity int) (*model.Product, error)
+	UpdateProductsByCode2(strcode string, quantity int) (*model.Product, error)
+	UpdateProductsByModel(model *model.Product) (*model.Product, error)
 }

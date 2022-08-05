@@ -1,9 +1,9 @@
 package main
 
 import (
-	"store/handler"
-	"store/repository"
-	"store/service"
+	"Product/handler"
+	"Product/repository"
+	"Product/service"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -14,9 +14,9 @@ func main() {
 	//connect to database + auto migrate
 	db := handler.ConnectDatabase()
 
-	queueRepo := repository.NewGoodRepositoryDB(db)
-	queueService := service.NewGoodService(queueRepo)
-	queueHandler := handler.NewGoodHandler(queueService)
+	queueRepo := repository.NewProductRepositoryDB(db)
+	queueService := service.NewProductService(queueRepo)
+	queueHandler := handler.NewProductHandler(queueService)
 
 	route := gin.Default()
 	route.Use(cors.Default())
@@ -25,13 +25,13 @@ func main() {
 
 	{
 		web.GET("/", queueHandler.Hello)
-		web.GET("/All", queueHandler.GetGoods)
-		web.GET("/:Type", queueHandler.GetGoodsType)
-		web.GET("/code/:Code", queueHandler.GetGoodsCode)
-		web.POST("/", queueHandler.AddGood)
-		web.PUT("/update", queueHandler.UpdateGood)
-		web.PUT("/sell", queueHandler.SellGood)
-		web.DELETE("/:Code", queueHandler.DeleteGood)
+		web.GET("/All", queueHandler.GetProducts)
+		web.GET("/:Type", queueHandler.GetProductsType)
+		web.GET("/code/:Code", queueHandler.GetProductsCode)
+		web.POST("/", queueHandler.AddProduct)
+		web.PUT("/update", queueHandler.UpdateProduct)
+		web.PUT("/sell", queueHandler.SellProduct)
+		web.DELETE("/:Code", queueHandler.DeleteProduct)
 	}
 
 	line := route.Group("/api/v1/line")
