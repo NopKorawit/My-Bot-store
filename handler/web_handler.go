@@ -10,16 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductHandler struct {
-	qService service.ProductService
+type productHandler struct {
+	productService service.ProductService
 }
 
-func NewProductHandler(qService service.ProductService) ProductHandler {
-	return ProductHandler{qService: qService}
+func NewProductHandler(productService service.ProductService) productHandler {
+	return productHandler{productService: productService}
 }
 
-func (h ProductHandler) GetProducts(c *gin.Context) {
-	Products, err := h.qService.GetProducts()
+func (h productHandler) GetProducts(c *gin.Context) {
+	Products, err := h.productService.GetProducts()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -27,10 +27,10 @@ func (h ProductHandler) GetProducts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": Products})
 }
 
-func (h ProductHandler) GetProductsType(c *gin.Context) {
+func (h productHandler) GetProductsType(c *gin.Context) {
 	genre := c.Param("Type")
 	if genre == "A" || genre == "B" || genre == "C" || genre == "D" {
-		Products, err := h.qService.GetProductsType(genre)
+		Products, err := h.productService.GetProductsType(genre)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -41,9 +41,9 @@ func (h ProductHandler) GetProductsType(c *gin.Context) {
 	c.JSON(http.StatusNotAcceptable, gin.H{"error": "invalid types error"})
 }
 
-func (h ProductHandler) GetProductsCode(c *gin.Context) {
+func (h productHandler) GetProductsCode(c *gin.Context) {
 	code := c.Param("Code")
-	Products, err := h.qService.GetProduct(code)
+	Products, err := h.productService.GetProduct(code)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -51,13 +51,13 @@ func (h ProductHandler) GetProductsCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": Products})
 }
 
-func (h ProductHandler) AddProduct(c *gin.Context) {
+func (h productHandler) AddProduct(c *gin.Context) {
 	var input model.ProductInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
-	Product, err := h.qService.AddProduct(input)
+	Product, err := h.productService.AddProduct(input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -65,7 +65,7 @@ func (h ProductHandler) AddProduct(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": Product, "message": "Added"})
 }
 
-func (h ProductHandler) UpdateProduct(c *gin.Context) {
+func (h productHandler) UpdateProduct(c *gin.Context) {
 	code := c.Query("code")
 	quantity := c.Query("val")
 	value, err := strconv.Atoi(quantity)
@@ -73,7 +73,7 @@ func (h ProductHandler) UpdateProduct(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": model.ErrNotNumber})
 		return
 	}
-	Product, err := h.qService.UpdateProduct(code, value)
+	Product, err := h.productService.UpdateProduct(code, value)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -81,7 +81,7 @@ func (h ProductHandler) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": Product, "message": "Updated"})
 }
 
-func (h ProductHandler) SellProduct(c *gin.Context) {
+func (h productHandler) SellProduct(c *gin.Context) {
 	code := c.Query("code")
 	quantity := c.Query("val")
 	value, err := strconv.Atoi(quantity)
@@ -89,7 +89,7 @@ func (h ProductHandler) SellProduct(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": model.ErrNotNumber})
 		return
 	}
-	Product, err := h.qService.SellProduct(code, value)
+	Product, err := h.productService.SellProduct(code, value)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -97,8 +97,8 @@ func (h ProductHandler) SellProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": Product, "message": "Updated"})
 }
 
-func (h ProductHandler) DeleteProduct(c *gin.Context) {
-	Product, err := h.qService.DelistProduct(c.Param("Code"))
+func (h productHandler) DeleteProduct(c *gin.Context) {
+	Product, err := h.productService.DelistProduct(c.Param("Code"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

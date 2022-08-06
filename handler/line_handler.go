@@ -12,11 +12,11 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func (h ProductHandler) Hello(c *gin.Context) {
+func (h productHandler) Hello(c *gin.Context) {
 	c.String(http.StatusOK, "Hello World!")
 }
 
-func (h ProductHandler) Callback(c *gin.Context) {
+func (h productHandler) Callback(c *gin.Context) {
 	bot := GetBot()
 	events, err := bot.ParseRequest(c.Request)
 	if err != nil {
@@ -72,7 +72,7 @@ func (h ProductHandler) Callback(c *gin.Context) {
 						log.Println("This Type not in Conditions")
 					}
 
-					Products, err := h.qService.GetProductsType(types)
+					Products, err := h.productService.GetProductsType(types)
 					if err != nil {
 						if err.Error() == "queue already exists" {
 							if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ท่านจองคิวไปแล้วกรุณายกเลิกคิวก่อนหน้า")).Do(); err != nil {
@@ -114,7 +114,7 @@ func (h ProductHandler) Callback(c *gin.Context) {
 						split := strings.Split(row, " ")
 						fmt.Println(split[1])
 						amount, _ := strconv.Atoi(split[1])
-						Product, err := h.qService.SellProduct(split[0], amount)
+						Product, err := h.productService.SellProduct(split[0], amount)
 						fmt.Println(err)
 						if err != nil {
 							if err == model.ErrProductNotEnough {

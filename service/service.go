@@ -9,16 +9,16 @@ import (
 	"log"
 )
 
-type ProductService struct {
+type productService struct {
 	ProductRepo repository.ProductRepository //อ้างถึง interface
 }
 
 //constructor
-func NewProductService(ProductRepo repository.ProductRepository) ProductService {
-	return ProductService{ProductRepo: ProductRepo}
+func NewProductService(ProductRepo repository.ProductRepository) productService {
+	return productService{ProductRepo: ProductRepo}
 }
 
-func (s ProductService) GetProducts() ([]model.ProductResponse, error) {
+func (s productService) GetProducts() ([]model.ProductResponse, error) {
 	Products, err := s.ProductRepo.GetAllProducts()
 	if err != nil {
 		log.Panic(model.ErrRepository)
@@ -39,7 +39,7 @@ func (s ProductService) GetProducts() ([]model.ProductResponse, error) {
 	return qReponses, nil
 }
 
-func (s ProductService) GetProductsType(Type string) ([]model.ProductResponse, error) {
+func (s productService) GetProductsType(Type string) ([]model.ProductResponse, error) {
 	Products, err := s.ProductRepo.GetProductsByType(Type)
 	if err != nil {
 		log.Println(err)
@@ -60,7 +60,7 @@ func (s ProductService) GetProductsType(Type string) ([]model.ProductResponse, e
 	return qReponses, nil
 }
 
-func (s ProductService) GetProduct(code string) (*model.ProductResponse, error) {
+func (s productService) GetProduct(code string) (*model.ProductResponse, error) {
 	Product, err := s.ProductRepo.GetProductsByCode(code)
 	if err != nil {
 		if err == model.ErrDuplicateROW {
@@ -82,7 +82,7 @@ func (s ProductService) GetProduct(code string) (*model.ProductResponse, error) 
 	return &qReponse, nil
 }
 
-func (s ProductService) AddProduct(data model.ProductInput) (*model.ProductResponse, error) {
+func (s productService) AddProduct(data model.ProductInput) (*model.ProductResponse, error) {
 	Product, err := s.ProductRepo.AddProducts(data)
 	if err != nil {
 		if err == model.ErrDuplicateROW {
@@ -101,7 +101,7 @@ func (s ProductService) AddProduct(data model.ProductInput) (*model.ProductRespo
 	return &qReponse, nil
 }
 
-func (s ProductService) UpdateProduct(code string, quantity int) (*model.ProductResponse, error) {
+func (s productService) UpdateProduct(code string, quantity int) (*model.ProductResponse, error) {
 	Product, err := s.ProductRepo.GetProductsByCode(code)
 	if err != nil {
 		if err == model.ErrDuplicateROW {
@@ -129,7 +129,7 @@ func (s ProductService) UpdateProduct(code string, quantity int) (*model.Product
 	return &qReponse, nil
 }
 
-func (s ProductService) UpdateMultiProduct(code string, quantity int) (*model.ProductResponse, error) {
+func (s productService) UpdateMultiProduct(code string, quantity int) (*model.ProductResponse, error) {
 	Product, err := s.ProductRepo.GetProductsByCode(code)
 	if err != nil {
 		if err == model.ErrDuplicateROW {
@@ -157,7 +157,7 @@ func (s ProductService) UpdateMultiProduct(code string, quantity int) (*model.Pr
 	return &qReponse, nil
 }
 
-func (s ProductService) SellProduct(code string, quantity int) (*model.ProductResponse, error) {
+func (s productService) SellProduct(code string, quantity int) (*model.ProductResponse, error) {
 	Product, err := s.ProductRepo.GetProductsByCode(code)
 	if err != nil {
 		if err == model.ErrDuplicateROW {
@@ -188,56 +188,56 @@ func (s ProductService) SellProduct(code string, quantity int) (*model.ProductRe
 	return &qReponse, nil
 }
 
-func (s ProductService) SellMultiProduct(Products []model.MultiProduct) ([]model.ProductResponse, error) {
-	var out []model.ProductResponse
-	var in []model.Product
-	for _, list := range Products {
-		Product, err := s.ProductRepo.GetProductsByCode(list.Code)
-		if err != nil {
-			if err == model.ErrDuplicateROW {
-				log.Println(err)
-				return nil, err
-			} else if err == model.ErrCodenotFound {
-				log.Println(err)
-				return nil, err
-			}
-			log.Println(err)
-			return nil, model.ErrRepository
-		}
-		Product.Quantity = Product.Quantity - list.Quantity
-		if Product.Quantity < 0 {
-			qReponse := model.ProductResponse{
-				Code:     fmt.Sprintf("%v%d", Product.Type, Product.Code),
-				Type:     Product.Type,
-				Name:     Product.Name,
-				Quantity: Product.Quantity,
-			}
-			out = append(out, qReponse)
-		} else {
-			in = append(in, *Product)
-		}
-	}
-	if len(out) != 0 {
-		return out, nil
-	}
-	for _, list2 := range Products {
-		new, err := s.ProductRepo.UpdateProductsByCode2(list2.Code, list2.Quantity)
-		if err != nil {
-			log.Println(err)
-			return nil, model.ErrRepository
-		}
-		qReponse := model.ProductResponse{
-			Code:     fmt.Sprintf("%v%d", Product.Type, Product.Code),
-			Type:     new.Type,
-			Name:     new.Name,
-			Quantity: new.Quantity,
-		}
-	}
+// func (s productService) SellMultiProduct(Products []model.MultiProduct) ([]model.ProductResponse, error) {
+// 	var out []model.ProductResponse
+// 	var in []model.Product
+// 	for _, list := range Products {
+// 		Product, err := s.ProductRepo.GetProductsByCode(list.Code)
+// 		if err != nil {
+// 			if err == model.ErrDuplicateROW {
+// 				log.Println(err)
+// 				return nil, err
+// 			} else if err == model.ErrCodenotFound {
+// 				log.Println(err)
+// 				return nil, err
+// 			}
+// 			log.Println(err)
+// 			return nil, model.ErrRepository
+// 		}
+// 		Product.Quantity = Product.Quantity - list.Quantity
+// 		if Product.Quantity < 0 {
+// 			qReponse := model.ProductResponse{
+// 				Code:     fmt.Sprintf("%v%d", Product.Type, Product.Code),
+// 				Type:     Product.Type,
+// 				Name:     Product.Name,
+// 				Quantity: Product.Quantity,
+// 			}
+// 			out = append(out, qReponse)
+// 		} else {
+// 			in = append(in, *Product)
+// 		}
+// 	}
+// 	if len(out) != 0 {
+// 		return out, nil
+// 	}
+// 	for _, list2 := range Products {
+// 		new, err := s.ProductRepo.UpdateProductsByCode2(list2.Code, list2.Quantity)
+// 		if err != nil {
+// 			log.Println(err)
+// 			return nil, model.ErrRepository
+// 		}
+// 		qReponse := model.ProductResponse{
+// 			Code:     fmt.Sprintf("%v%d", Product.Type, Product.Code),
+// 			Type:     new.Type,
+// 			Name:     new.Name,
+// 			Quantity: new.Quantity,
+// 		}
+// 	}
 
-	// return &qReponse, nil
-}
+// 	return &qReponse, nil
+// }
 
-func (s ProductService) DelistProduct(code string) (*model.ProductResponse, error) {
+func (s productService) DelistProduct(code string) (*model.ProductResponse, error) {
 	Product, err := s.ProductRepo.DeleteProduct(code)
 	if err != nil {
 		if err == model.ErrCodenotFound {
