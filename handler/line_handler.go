@@ -107,7 +107,7 @@ func (h productHandler) Callback(c *gin.Context) {
 					return
 				}
 				rows := strings.Split(message.Text, "\n")
-				if rows[0] == "ซื้อ" || rows[0] == "เอา" || rows[0] == "buy" || rows[0] == "order" {
+				if rows[0] == "ซื้อ" {
 					rows := rows[1:]
 					text := "ซื้อ\n"
 					for _, row := range rows {
@@ -142,6 +142,53 @@ func (h productHandler) Callback(c *gin.Context) {
 						fmt.Println(Product)
 					}
 					text = text + "เรียบร้อยแล้ว"
+					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
+						log.Print(err)
+						return
+					}
+				}
+				if rows[0] == "ขาย" || rows[0] == "เอา" || rows[0] == "buy" || rows[0] == "order" {
+					rows := rows[1:]
+					var productsList []model.MultiProduct
+					for _, row := range rows {
+						split := strings.Split(row, " ")
+						fmt.Println(split[1])
+						amount, _ := strconv.Atoi(split[1])
+						product := model.MultiProduct{
+							Code:     split[0],
+							Quantity: amount,
+						}
+						productsList = append(productsList, product)
+					}
+					sell, err := h.productService.SellMultiProduct(productsList)
+					fmt.Println(err)
+					if err != nil {
+						if err == model.ErrProductNotEnough {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("สินค้ามีจำนวนไม่เพียงพอ")).Do(); err != nil {
+								log.Print(err)
+								return
+							}
+							return
+						} else if err == model.ErrCodenotFound {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ค้นหาสินค้าไม่เจอ")).Do(); err != nil {
+								log.Print(err)
+								return
+							}
+							return
+						} else {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("ระบบผิดพลาด")).Do(); err != nil {
+								log.Print(err)
+								return
+							}
+							return
+						}
+					}
+					text := "รายการ\n"
+					for _, Product := range sell {
+						list := fmt.Sprintf("%v หัว| %v %v\n", Product.Quantity, Product.Type, Product.Name)
+						text = text + list
+					}
+					text = text + "ถูกซื้อเรียบร้อยแล้ว"
 					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
 						log.Print(err)
 						return

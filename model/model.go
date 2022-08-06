@@ -23,5 +23,4 @@ type ProductInput struct {
 type MultiProduct struct {
 	Code     string
 	Quantity int
-	Status   int `gorm:"default:0"`
 }

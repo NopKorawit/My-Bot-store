@@ -127,7 +127,7 @@ func (r ProductRepositoryDB) UpdateProductsByModel(model *model.Product) (*model
 	return Product, nil
 }
 
-func (r ProductRepositoryDB) UpdateProductsByModels(Products []model.MultiProduct) ([]model.Product, error) {
+func (r ProductRepositoryDB) UpdateMultiProducts(Products []model.MultiProduct) ([]model.Product, error) {
 	tx := r.db.Begin()
 	var response []model.Product
 	for _, Product := range Products {
@@ -136,12 +136,11 @@ func (r ProductRepositoryDB) UpdateProductsByModels(Products []model.MultiProduc
 			return nil, err
 		}
 		good.Quantity = Product.Quantity
-		result := r.db.Where("Code = ? AND Type = ?", good.Code, good.Type).Save(&good)
-		if result.Error != nil {
-			log.Println(result.Error)
-			return nil, result.Error
+		store, err := r.UpdateProductsByModel(good)
+		if err != nil {
+			return nil, err
 		}
-		response = append(response, *good)
+		response = append(response, *store)
 	}
 	tx.Commit()
 	return response, nil
