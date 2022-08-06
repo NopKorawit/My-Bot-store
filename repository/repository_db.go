@@ -146,6 +146,28 @@ func (r ProductRepositoryDB) UpdateMultiProducts(Products []model.MultiProduct) 
 	return response, nil
 }
 
+func (r ProductRepositoryDB) SellMultiProducts(Products []model.MultiProduct) ([]model.Product, error) {
+	tx := r.db.Begin()
+	var response []model.Product
+	for _, Product := range Products {
+		good, err := r.GetProductsByCode(Product.Code)
+		if err != nil {
+			return nil, err
+		}
+		good.Quantity = good.Quantity - Product.Quantity
+		if Product.Quantity < 0 {
+			return nil, model.ErrProductNotEnough
+		}
+		store, err := r.UpdateProductsByModel(good)
+		if err != nil {
+			return nil, err
+		}
+		response = append(response, *store)
+	}
+	tx.Commit()
+	return response, nil
+}
+
 func (r ProductRepositoryDB) generateCode(types string) (NewCode int) {
 	Product := model.Product{}
 	result := r.db.Where("Type=?", types).Limit(1).Order("Code desc").Find(&Product)

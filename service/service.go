@@ -189,6 +189,36 @@ func (s productService) SellProduct(code string, quantity int) (*model.ProductRe
 }
 
 func (s productService) SellMultiProduct(productsList []model.MultiProduct) ([]model.ProductResponse, error) {
+	Products, err := s.ProductRepo.SellMultiProducts(productsList)
+	if err != nil {
+		if err == model.ErrDuplicateROW {
+			log.Println(err)
+			return nil, err
+		} else if err == model.ErrCodenotFound {
+			log.Println(err)
+			return nil, err
+		} else if err == model.ErrProductNotEnough {
+			log.Println(err)
+			return nil, err
+		}
+		log.Println(err)
+		return nil, model.ErrRepository
+	}
+	qReponses := []model.ProductResponse{}
+	for _, Product := range Products {
+		qReponse := model.ProductResponse{
+			Code:     fmt.Sprintf("%v%d", Product.Type, Product.Code),
+			Type:     Product.Type,
+			Name:     Product.Name,
+			Quantity: Product.Quantity,
+		}
+		qReponses = append(qReponses, qReponse)
+	}
+
+	return qReponses, nil
+}
+
+func (s productService) UpdateMultiProducts(productsList []model.MultiProduct) ([]model.ProductResponse, error) {
 	Products, err := s.ProductRepo.UpdateMultiProducts(productsList)
 	if err != nil {
 		if err == model.ErrDuplicateROW {

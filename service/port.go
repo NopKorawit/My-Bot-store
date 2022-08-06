@@ -13,5 +13,7 @@ type ProductService interface {
 	UpdateProduct(code string, quantity int) (*model.ProductResponse, error)
 	SellProduct(code string, quantity int) (*model.ProductResponse, error)
 	DelistProduct(code string) (*model.ProductResponse, error)
+
 	SellMultiProduct(productsList []model.MultiProduct) ([]model.ProductResponse, error)
+	UpdateMultiProducts(productsList []model.MultiProduct) ([]model.ProductResponse, error)
 }

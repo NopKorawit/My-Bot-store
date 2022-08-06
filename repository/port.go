@@ -15,4 +15,5 @@ type ProductRepository interface {
 	UpdateProductsByCode2(strcode string, quantity int) (*model.Product, error)
 	UpdateProductsByModel(model *model.Product) (*model.Product, error)
 	UpdateMultiProducts(Products []model.MultiProduct) ([]model.Product, error)
+	SellMultiProducts(Products []model.MultiProduct) ([]model.Product, error)
 }
