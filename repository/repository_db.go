@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
@@ -147,22 +148,35 @@ func (r ProductRepositoryDB) UpdateMultiProducts(Products []model.MultiProduct) 
 }
 
 func (r ProductRepositoryDB) SellMultiProducts(Products []model.MultiProduct) ([]model.Product, error) {
+	var eg errgroup.Group
 	tx := r.db.Begin()
-	var response []model.Product
-	for _, Product := range Products {
-		good, err := r.GetProductsByCode(Product.Code)
-		if err != nil {
-			return nil, err
-		}
-		good.Quantity = good.Quantity - Product.Quantity
-		if Product.Quantity < 0 {
-			return nil, model.ErrProductNotEnough
-		}
-		store, err := r.UpdateProductsByModel(good)
-		if err != nil {
-			return nil, err
-		}
-		response = append(response, *store)
+	response := make([]model.Product, len(Products))
+	for i, Product := range Products {
+		func(i int, Product model.MultiProduct) {
+			eg.Go(func() error {
+				good, err := r.GetProductsByCode(Product.Code)
+				if err != nil {
+					return err
+				}
+
+				good.Quantity = good.Quantity - Product.Quantity
+				if Product.Quantity < 0 {
+					return model.ErrProductNotEnough
+				}
+				store, err := r.UpdateProductsByModel(good)
+				if err != nil {
+					return err
+				}
+				response[i] = *store
+
+				return nil
+			})
+		}(i, Product)
+	}
+
+	if err := eg.Wait(); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 	tx.Commit()
 	return response, nil

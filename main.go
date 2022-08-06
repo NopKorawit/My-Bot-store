@@ -29,6 +29,7 @@ func main() {
 		web.GET("/:Type", storeHandler.GetProductsType)
 		web.GET("/code/:Code", storeHandler.GetProductsCode)
 		web.POST("/", storeHandler.AddProduct)
+		web.POST("/updates", storeHandler.UpdateMultiProduct)
 		web.PUT("/update", storeHandler.UpdateProduct)
 		web.PUT("/sell", storeHandler.SellProduct)
 		web.DELETE("/:Code", storeHandler.DeleteProduct)

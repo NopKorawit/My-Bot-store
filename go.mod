@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/line/line-bot-sdk-go v7.8.0+incompatible
 	github.com/spf13/viper v1.12.0
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	gorm.io/driver/mysql v1.3.5
 	gorm.io/gorm v1.23.8
 )

@@ -65,6 +65,20 @@ func (h productHandler) AddProduct(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": Product, "message": "Added"})
 }
 
+func (h productHandler) UpdateMultiProduct(c *gin.Context) {
+	var input []model.MultiProduct
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	Product, err := h.productService.UpdateMultiProducts(input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"data": Product, "message": "Added"})
+}
+
 func (h productHandler) UpdateProduct(c *gin.Context) {
 	code := c.Query("code")
 	quantity := c.Query("val")

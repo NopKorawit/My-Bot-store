@@ -38,7 +38,7 @@ func ConnectDatabase() (db *gorm.DB) {
 	}
 
 	dial := mysql.Open(dsn)
-	database, err := gorm.Open(dial, &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	database, err := gorm.Open(dial, &gorm.Config{Logger: logger.Default.LogMode(logger.Info), SkipDefaultTransaction: true})
 
 	if err != nil {
 		panic("Failed to connect to database!")
